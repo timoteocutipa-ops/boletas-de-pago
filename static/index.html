@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boleta de Pago</title>
+    <style>
+        :root {
+            --bg: #eef2f6;
+            --panel: #ffffff;
+            --text: #111827;
+            --muted: #4b5563;
+            --line: #c7d0da;
+            --brand: #0f3d91;
+            --brand-soft: #dbe8ff;
+            --yellow: #fff200;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 18px 14px 36px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+        }
+
+        .hero {
+            padding: 22px;
+            margin-bottom: 14px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #163b7a, #0b1730);
+            color: #fff;
+        }
+
+        .hero h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 900px;
+            line-height: 1.5;
+            color: #d8e7ff;
+        }
+
+        .panel {
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .panel h2 {
+            margin: 0 0 10px;
+            font-size: 20px;
+        }
+
+        .top-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            margin-bottom: 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .field {
+            display: grid;
+            gap: 4px;
+        }
+
+        .field label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            outline: 2px solid #c6dbff;
+            border-color: #7ba6eb;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        button {
+            border: none;
+            border-radius: 9px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .primary {
+            background: var(--brand);
+            color: #fff;
+        }
+
+        .secondary {
+            background: #e8edf5;
+            color: var(--text);
+        }
+
+        .hint {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .summary {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            margin-top: 10px;
+        }
+
+        .summary-card {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px;
+            background: #f8fafc;
+        }
+
+        .summary-card span {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .summary-card strong {
+            font-size: 24px;
+            color: var(--brand);
+        }
+
+        .table-wrap {
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .sheet {
+            min-width: 1550px;
+        }
+
+        .sheet th,
+        .sheet td {
+            border: 1px solid #202020;
+            text-align: center;
+            padding: 3px 4px;
+            font-size: 12px;
+        }
+
+        .sheet thead th {
+            background: #d9d9d9;
+            font-weight: 700;
+        }
+
+        .sheet .subgroup {
+            background: #ededed;
+        }
+
+        .sheet .left {
+            text-align: left;
+        }
+
+        .sheet input {
+            width: 100%;
+            min-width: 72px;
+            border: none;
+            background: transparent;
+            padding: 5px 4px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .sheet input:focus {
+            outline: 2px solid #699cff;
+        }
+
+        .yellow {
+            background: var(--yellow);
+        }
+
+        .sheet td.cell-selected {
+            box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.18);
+        }
+
+        .sheet td.cell-active {
+            box-shadow: inset 0 0 0 2px #2563eb;
+        }
+
+        .sunday,
+        .holiday {
+            color: #c1121f;
+            font-weight: 700;
+        }
+
+        .totals-row td {
+            background: #dcdcdc;
+            font-weight: 700;
+        }
+
+        .boleta-wrap {
+            overflow: auto;
+            background: #fff;
+            border: 1px solid #333;
+        }
+
+        .boleta {
+            min-width: 1200px;
+        }
+
+        .boleta td,
+        .boleta th {
+            border: 1px solid #333;
+            padding: 4px 6px;
+            font-size: 13px;
+            vertical-align: top;
+        }
+
+        .boleta th {
+            background: #efefef;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .boleta .center {
+            text-align: center;
+        }
+
+        .boleta .right {
+            text-align: right;
+        }
+
+        .boleta .section {
+            background: #efefef;
+            font-weight: 700;
+        }
+
+        .boleta .totals {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .logo {
+            color: #e02027;
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .logo-box {
+            width: 300px;
+            line-height: 1.15;
+        }
+
+        .list {
+            display: grid;
+            gap: 4px;
+        }
+
+        .list-row {
+            display: grid;
+            grid-template-columns: 1fr 110px;
+            gap: 8px;
+        }
+
+        .list-row span:last-child {
+            text-align: right;
+        }
+
+        .signature {
+            min-height: 110px;
+            display: grid;
+            place-items: center;
+            color: #222;
+            font-size: 42px;
+            font-family: "Brush Script MT", cursive;
+            transform: rotate(-6deg);
+        }
+
+        .caption {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        @media (max-width: 1180px) {
+            .top-grid,
+            .summary,
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                padding: 10px;
+            }
+
+            .top-grid,
+            .summary,
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <h1>Boleta de Pago</h1>
+            <p>
+                Modelo base construido desde tu formato de asistencia y boleta. Las horas nocturnas
+                se calculan solo entre las <strong>10:00 PM</strong> y <strong>6:00 AM</strong>.
+            </p>
+        </section>
+
+        <section class="top-grid">
+            <article class="panel">
+                <h2>Datos del Trabajador</h2>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="empresa">Empresa</label>
+                        <input id="empresa" value="ADECCO INDUSTRIAL & LOGISTICS S.A.">
+                    </div>
+                    <div class="field">
+                        <label for="ruc">RUC</label>
+                        <input id="ruc" value="20610132279">
+                    </div>
+                    <div class="field">
+                        <label for="mes">Mes</label>
+                        <select id="mes"></select>
+                    </div>
+                    <div class="field">
+                        <label for="anio">Año</label>
+                        <input id="anio" type="number" value="2026" min="2024" max="2100">
+                    </div>
+                    <div class="field">
+                        <label for="codigo">Codigo</label>
+                        <input id="codigo" value="72146103">
+                    </div>
+                    <div class="field">
+                        <label for="dni">DNI</label>
+                        <input id="dni" value="72146103">
+                    </div>
+                    <div class="field" style="grid-column: span 2;">
+                        <label for="nombre">Apellidos y Nombres</label>
+                        <input id="nombre" value="CUTIPA RAMOS, TIMOTEO">
+                    </div>
+                    <div class="field">
+                        <label for="cargo">Cargo</label>
+                        <input id="cargo" value="ASISTENTE DE ALMACEN">
+                    </div>
+                    <div class="field">
+                        <label for="fechaIngreso">Fecha de Ingreso</label>
+                        <input id="fechaIngreso" type="date" value="2023-07-01">
+                    </div>
+                    <div class="field">
+                        <label for="afp">AFP</label>
+                        <input id="afp" value="SPP HABITAT">
+                    </div>
+                    <div class="field">
+                        <label for="cuspp">CUSPP</label>
+                        <input id="cuspp" value="650881TCRIO5">
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel">
+                <h2>Importes Base</h2>
+                <div class="form-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+                    <div class="field">
+                        <label for="sistemaPension">Sistema Pension</label>
+                        <select id="sistemaPension">
+                            <option value="AFP" selected>AFP</option>
+                            <option value="ONP">ONP</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="tipoComision">Tipo Comision AFP</label>
+                        <select id="tipoComision">
+                            <option value="mixta" selected>Mixta</option>
+                            <option value="flujo">Flujo</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="sueldoBase">Sueldo Basico</label>
+                        <input id="sueldoBase" type="number" step="0.01" value="1665.58">
+                    </div>
+                    <div class="field">
+                        <label for="asigFamiliar">Asignacion Familiar</label>
+                        <input id="asigFamiliar" type="number" step="0.01" value="113.00">
+                    </div>
+                    <div class="field">
+                        <label for="asigTransporte">Asignacion Transporte</label>
+                        <input id="asigTransporte" type="number" step="0.01" value="220.00">
+                    </div>
+                    <div class="field">
+                        <label for="valeAlimento">Vale Alimento</label>
+                        <input id="valeAlimento" type="number" step="0.01" value="300.00">
+                    </div>
+                    <div class="field">
+                        <label for="adelanto">Adelanto Quincena</label>
+                        <input id="adelanto" type="number" step="0.01" value="666.23">
+                    </div>
+                    <div class="field">
+                        <label for="dctoVale">Dcto Vale</label>
+                        <input id="dctoVale" type="number" step="0.01" value="300.00">
+                    </div>
+                    <div class="field">
+                        <label for="afpSeguroPct">Prima Seguro AFP %</label>
+                        <input id="afpSeguroPct" type="number" step="0.01" value="1.37">
+                    </div>
+                    <div class="field">
+                        <label for="afpComisionPct">Comision AFP Flujo %</label>
+                        <input id="afpComisionPct" type="number" step="0.01" value="0.00">
+                    </div>
+                    <div class="field">
+                        <label for="essaludPct">ESSALUD %</label>
+                        <input id="essaludPct" type="number" step="0.01" value="9.00">
+                    </div>
+                    <div class="field">
+                        <label for="rmv">RMV</label>
+                        <input id="rmv" type="number" step="0.01" value="1130.00">
+                    </div>
+                    <div class="field">
+                        <label for="uitAnual">UIT</label>
+                        <input id="uitAnual" type="number" step="0.01" value="5500.00">
+                    </div>
+                    <div class="field">
+                        <label for="vidaLeyPct">Vida Ley % Poliza</label>
+                        <input id="vidaLeyPct" type="number" step="0.01" value="0.54">
+                    </div>
+                    <div class="field">
+                        <label for="sctrSaludPct">SCTR Salud %</label>
+                        <input id="sctrSaludPct" type="number" step="0.01" value="0.81">
+                    </div>
+                    <div class="field">
+                        <label for="sctrPensionPct">SCTR Pension %</label>
+                        <input id="sctrPensionPct" type="number" step="0.01" value="0.90">
+                    </div>
+                    <div class="field">
+                        <label for="quintaModo">Renta 5ta</label>
+                        <select id="quintaModo">
+                            <option value="sunat" selected>SUNAT acumulado</option>
+                            <option value="simple">Simple mensual</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="quintaIngresosPrevios">Ingresos 5ta acumulados previos</label>
+                        <input id="quintaIngresosPrevios" type="number" step="0.01" value="0.00">
+                    </div>
+                    <div class="field">
+                        <label for="quintaRetPrevias">Retenciones 5ta previas</label>
+                        <input id="quintaRetPrevias" type="number" step="0.01" value="0.00">
+                    </div>
+                    <div class="field">
+                        <label for="quintaProyMensual">Proyeccion mensual futura 5ta</label>
+                        <input id="quintaProyMensual" type="number" step="0.01" value="1778.58">
+                    </div>
+                    <div class="field">
+                        <label for="gratJulioProy">Gratificacion Julio Proyectada</label>
+                        <input id="gratJulioProy" type="number" step="0.01" value="1778.58">
+                    </div>
+                    <div class="field">
+                        <label for="gratDiciembreProy">Gratificacion Diciembre Proyectada</label>
+                        <input id="gratDiciembreProy" type="number" step="0.01" value="1778.58">
+                    </div>
+                </div>
+                <p class="hint" style="margin-top:10px;">
+                    En Peru, `ESSALUD` es 9% a cargo del empleador. `ONP` es 13% del trabajador.
+                    En `AFP`, el aporte obligatorio es 10% y la prima/comision dependen del esquema.
+                    `Vida Ley` y `SCTR` varian segun poliza y actividad, por eso quedan editables.
+                </p>
+            </article>
+
+            <article class="panel">
+                <h2>Acciones</h2>
+                <p class="hint">
+                    Las celdas amarillas son editables. La tabla calcula horas diurnas, nocturnas y extras;
+                    luego pasa el resumen a la boleta inferior.
+                </p>
+                <div class="actions">
+                    <button class="primary" id="btnGenerar">Generar mes</button>
+                    <button class="primary" id="btnGuardar">Guardar</button>
+                    <button class="secondary" id="btnVerGuardados">Ver guardados</button>
+                    <button class="secondary" id="btnEjemplo">Cargar ejemplo</button>
+                    <button class="secondary" id="btnLimpiar">Limpiar horas</button>
+                </div>
+                <p class="hint" id="estado">Listo para construir asistencia.</p>
+                <div class="saved-panel" id="savedPanel" style="display:none; margin-top:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px;">
+                        <strong>Registros Guardados</strong>
+                        <span class="hint" id="savedPath"></span>
+                    </div>
+                    <div id="savedRecordsEmpty" class="hint">No hay registros guardados.</div>
+                    <div id="savedRecordsList"></div>
+                </div>
+                <div class="summary">
+                    <div class="summary-card">
+                        <span>Horas Ordinarias</span>
+                        <strong id="sumOrdinarias">0.00</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>Horas Extra</span>
+                        <strong id="sumExtras">0.00</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>Horas Feriado</span>
+                        <strong id="sumFeriado">0.00</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>Neto</span>
+                        <strong id="sumNeto">S/ 0.00</strong>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="panel">
+            <h2>Hoja de Asistencia</h2>
+            <p class="hint">
+                Turno noche o nocturno: desde <strong>10:00 PM</strong> hasta <strong>6:00 AM</strong>.
+                Si una fecha es feriado peruano y tiene horas registradas, esas horas pasan a <strong>100%</strong>.
+            </p>
+            <div class="table-wrap">
+                <table class="sheet">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">FECHA</th>
+                            <th rowspan="2">DIA</th>
+                            <th rowspan="2">HORA DE INGRESO</th>
+                            <th rowspan="2">HORA DE SALIDA</th>
+                            <th rowspan="2">HORA DE INGRESO</th>
+                            <th rowspan="2">HORA DE SALIDA</th>
+                            <th rowspan="2">TOTAL HRS DIURNAS</th>
+                            <th rowspan="2">TOTAL HRS NOCTURNA</th>
+                            <th rowspan="2">TOTAL HRS</th>
+                            <th rowspan="2">DIA</th>
+                            <th rowspan="2">NOCHE</th>
+                            <th rowspan="2">TOTAL</th>
+                            <th colspan="3">HORAS EXTRAS 25%</th>
+                            <th colspan="3">HORAS EXTRAS 35%</th>
+                            <th rowspan="2">HORAS EXTRAS 100%</th>
+                        </tr>
+                        <tr>
+                            <th class="subgroup">DIA</th>
+                            <th class="subgroup">NOCHE</th>
+                            <th class="subgroup">TOTAL</th>
+                            <th class="subgroup">DIA</th>
+                            <th class="subgroup">NOCHE</th>
+                            <th class="subgroup">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="asistenciaBody"></tbody>
+                    <tfoot>
+                        <tr class="totals-row" id="asistenciaTotales"></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Boleta de Pago</h2>
+            <div class="boleta-wrap">
+                <table class="boleta">
+                    <tbody>
+                        <tr>
+                            <td class="logo-box">
+                                <div class="logo">Adecco</div>
+                                <div><strong id="bEmpresaTop">ADECCO INDUSTRIAL & LOGISTICS S.A.</strong></div>
+                                <div>Av. Circunvalacion del Club Golf Los Inkas N 206 Int. 101</div>
+                            </td>
+                            <td colspan="5" class="center" style="font-size: 28px; font-weight: 700;">BOLETA DE PAGO</td>
+                        </tr>
+                        <tr>
+                            <th>EMPRESA:</th>
+                            <td id="bEmpresa">ADECCO INDUSTRIAL & LOGISTICS S.A.</td>
+                            <th>MES:</th>
+                            <td id="bMes">ABRIL</td>
+                            <th>AÑO:</th>
+                            <td id="bAnio">2026</td>
+                        </tr>
+                        <tr>
+                            <th>RUC:</th>
+                            <td id="bRuc">20610132279</td>
+                            <th>PERIODO:</th>
+                            <td id="bPeriodo">04</td>
+                            <th>FECHA DE INGRESO:</th>
+                            <td id="bIngreso">01/07/2023</td>
+                        </tr>
+                        <tr>
+                            <th>CODIGO</th>
+                            <th colspan="3" class="center">APELLIDOS Y NOMBRES</th>
+                            <th colspan="2" class="center">CARGO</th>
+                        </tr>
+                        <tr>
+                            <td id="bCodigo" class="center">72146103</td>
+                            <td id="bNombre" colspan="3" class="center">CUTIPA RAMOS, TIMOTEO</td>
+                            <td id="bCargo" colspan="2" class="center">ASISTENTE DE ALMACEN</td>
+                        </tr>
+                        <tr>
+                            <th>DNI</th>
+                            <th>CUSPP A.F.P.</th>
+                            <th>N AUTOG. ESSALUD</th>
+                            <th>SUELDO / SALARIO</th>
+                            <th>MONEDA</th>
+                            <th>A.F.P.</th>
+                        </tr>
+                        <tr>
+                            <td id="bDni" class="center">72146103</td>
+                            <td id="bCuspp" class="center">650881TCRIO5</td>
+                            <td class="center">0</td>
+                            <td id="bSueldo" class="center">1,665.58</td>
+                            <td class="center">SOL</td>
+                            <td id="bAfp" class="center">SPP HABITAT</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="section">REMUNERACIONES</td>
+                            <td colspan="2" class="section">DESCUENTOS TRABAJADOR</td>
+                            <td colspan="2" class="section">APORTACIONES EMPLEADOR</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><div class="list" id="listaRemuneraciones"></div></td>
+                            <td colspan="2"><div class="list" id="listaDescuentos"></div></td>
+                            <td colspan="2"><div class="list" id="listaAportes"></div></td>
+                        </tr>
+                        <tr class="totals">
+                            <td>REMUNERACION TOTAL</td>
+                            <td id="totalRem" class="right">0.00</td>
+                            <td>DESCUENTOS TOTALES</td>
+                            <td id="totalDesc" class="right">0.00</td>
+                            <td>TOTAL APORTES EMPLEADOR</td>
+                            <td id="totalAportes" class="right">0.00</td>
+                        </tr>
+                        <tr class="totals">
+                            <td colspan="4"></td>
+                            <td>REMUNERACION NETA</td>
+                            <td id="totalNeto" class="right">0.00</td>
+                        </tr>
+                        <tr>
+                            <th class="center">Dias Trabajados</th>
+                            <th class="center">Dias de Descanso</th>
+                            <th class="center">Dias de Faltas</th>
+                            <th class="center">Tardanzas</th>
+                            <th class="center">Descansos Medicos</th>
+                            <th class="center">Dias Pago Vacaciones</th>
+                        </tr>
+                        <tr>
+                            <td id="statDiasTrab" class="center">0.00 / 0.00 Hrs.</td>
+                            <td class="center">0.00</td>
+                            <td class="center">0.00</td>
+                            <td class="center">0.00</td>
+                            <td class="center">0.00</td>
+                            <td class="center">0.00</td>
+                        </tr>
+                        <tr>
+                            <th class="center">Licencias Sin Goce</th>
+                            <th class="center">Licencia con Goce</th>
+                            <th class="center">Dias de Gratificacion</th>
+                            <th class="center">H.E. 25%</th>
+                            <th class="center">H.E. 35%</th>
+                            <th class="center">H.E. 100%</th>
+                        </tr>
+                        <tr>
+                            <td class="center">0.00</td>
+                            <td class="center">0.00</td>
+                            <td class="center">0.00</td>
+                            <td id="statHe25" class="center">0.00</td>
+                            <td id="statHe35" class="center">0.00</td>
+                            <td class="center">0.00</td>
+                        </tr>
+                        <tr>
+                            <th class="center">H.E. 25% Noc</th>
+                            <th class="center">H.E. 35% Noc</th>
+                            <th class="center">H. Feriado</th>
+                            <th colspan="3" class="center">Firma</th>
+                        </tr>
+                        <tr>
+                            <td id="statHe25Noc" class="center">0.00</td>
+                            <td id="statHe35Noc" class="center">0.00</td>
+                            <td id="statFeriado" class="center">0.00</td>
+                            <td colspan="3">
+                                <div class="signature">Rosa Del Rosario Tica</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>DET. VAC.</th>
+                            <td colspan="5">Trabajador sujeto a fiscalizacion inmediata</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <script>
+        const monthNames = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SETIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+        const monthShort = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+        const weekdayNames = ["DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
+        const baseReference = 1778.58;
+        const calibratedRates = {
+            he25Day: 208.43 / 22.5,
+            he35Day: 100.04 / 10,
+            he25Night: 222.24 / 24,
+            he35Night: 250.0 / 25,
+            holiday: 355.72 / 24
+        };
+        const editableCols = ["in1", "out1", "in2", "out2"];
+        const refs = {};
+        let rows = [];
+        let latestSnapshot = null;
+        let savedRecords = [];
+        let activeCell = { row: 0, col: 0 };
+        let selectionStart = { row: 0, col: 0 };
+        let selectionEnd = { row: 0, col: 0 };
+        let isSelecting = false;
+
+        function bindRefs() {
+            [
+                "empresa", "ruc", "mes", "anio", "codigo", "dni", "nombre", "cargo", "fechaIngreso", "afp", "cuspp",
+                "sistemaPension", "tipoComision", "sueldoBase", "asigFamiliar", "asigTransporte", "valeAlimento",
+                "adelanto", "dctoVale", "afpSeguroPct", "afpComisionPct", "essaludPct", "rmv", "uitAnual",
+                "vidaLeyPct", "sctrSaludPct", "sctrPensionPct", "quintaModo", "quintaIngresosPrevios",
+                "quintaRetPrevias", "quintaProyMensual", "gratJulioProy", "gratDiciembreProy",
+                "btnGenerar", "btnGuardar", "btnVerGuardados", "btnEjemplo", "btnLimpiar", "estado", "sumOrdinarias", "sumExtras", "sumFeriado", "sumNeto",
+                "savedPanel", "savedPath", "savedRecordsEmpty", "savedRecordsList",
+                "asistenciaBody", "asistenciaTotales", "bEmpresaTop", "bEmpresa", "bMes", "bAnio", "bRuc", "bPeriodo",
+                "bIngreso", "bCodigo", "bNombre", "bCargo", "bDni", "bCuspp", "bSueldo", "bAfp", "listaRemuneraciones",
+                "listaDescuentos", "listaAportes", "totalRem", "totalDesc", "totalAportes", "totalNeto", "statDiasTrab",
+                "statHe25", "statHe35", "statHe25Noc", "statHe35Noc", "statFeriado"
+            ].forEach((id) => {
+                refs[id] = document.getElementById(id);
+            });
+        }
+
+        function money(value) {
+            return Number(value || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function round2(value) {
+            return Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100;
+        }
+
+        function safeNumber(value) {
+            const parsed = Number(value);
+            return Number.isFinite(parsed) ? parsed : 0;
+        }
+
+        function pad2(value) {
+            return String(value).padStart(2, "0");
+        }
+
+        function formatInputDate(value) {
+            if (!value) return "";
+            const [year, month, day] = value.split("-");
+            return `${day}/${month}/${year}`;
+        }
+
+        function formatSheetDate(date) {
+            return `${pad2(date.getDate())}-${monthShort[date.getMonth()]}-${String(date.getFullYear()).slice(-2)}`;
+        }
+
+        function parseTime(value) {
+            const text = String(value || "").trim();
+            if (!text) return null;
+            const normalized = text.replace(".", ":");
+            const parts = normalized.split(":");
+            if (parts.length < 1 || parts.length > 2) return null;
+            const hours = safeNumber(parts[0]);
+            const minutes = safeNumber(parts[1] || "0");
+            if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+            return hours * 60 + minutes;
+        }
+
+        function normalizeTime(value) {
+            const parsed = parseTime(value);
+            if (parsed === null) return "";
+            return `${Math.floor(parsed / 60)}:${pad2(parsed % 60)}`;
+        }
+
+        function diffMinutes(start, end) {
+            if (start === null || end === null) return 0;
+            let delta = end - start;
+            if (delta < 0) delta += 24 * 60;
+            return delta;
+        }
+
+        function formatHours(minutes) {
+            if (!minutes) return "0:00";
+            return `${Math.floor(minutes / 60)}:${pad2(minutes % 60)}`;
+        }
+
+        function splitDayNight(start, end) {
+            const duration = diffMinutes(start, end);
+            let day = 0;
+            let night = 0;
+            for (let i = 0; i < duration; i += 1) {
+                const minuteOfDay = (start + i) % (24 * 60);
+                if (minuteOfDay >= 22 * 60 || minuteOfDay < 6 * 60) night += 1;
+                else day += 1;
+            }
+            return { day, night };
+        }
+
+        function isNightSchedule(row) {
+            const start = parseTime(row.in1);
+            if (start === null) return false;
+            return start >= 18 * 60 || start < 6 * 60;
+        }
+
+        function easterSunday(year) {
+            const a = year % 19;
+            const b = Math.floor(year / 100);
+            const c = year % 100;
+            const d = Math.floor(b / 4);
+            const e = b % 4;
+            const f = Math.floor((b + 8) / 25);
+            const g = Math.floor((b - f + 1) / 3);
+            const h = (19 * a + b - d - g + 15) % 30;
+            const i = Math.floor(c / 4);
+            const k = c % 4;
+            const l = (32 + 2 * e + 2 * i - h - k) % 7;
+            const m = Math.floor((a + 11 * h + 22 * l) / 451);
+            const month = Math.floor((h + l - 7 * m + 114) / 31);
+            const day = ((h + l - 7 * m + 114) % 31) + 1;
+            return new Date(year, month - 1, day);
+        }
+
+        function shiftDate(date, deltaDays) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate() + deltaDays);
+        }
+
+        function holidayKey(date) {
+            return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+        }
+
+        function getPeruHolidays(year) {
+            const easter = easterSunday(year);
+            const fixed = [
+                new Date(year, 0, 1),
+                shiftDate(easter, -3),
+                shiftDate(easter, -2),
+                new Date(year, 4, 1),
+                new Date(year, 5, 7),
+                new Date(year, 5, 29),
+                new Date(year, 6, 23),
+                new Date(year, 6, 28),
+                new Date(year, 6, 29),
+                new Date(year, 7, 6),
+                new Date(year, 7, 30),
+                new Date(year, 9, 8),
+                new Date(year, 10, 1),
+                new Date(year, 11, 8),
+                new Date(year, 11, 9),
+                new Date(year, 11, 25)
+            ];
+            return new Set(fixed.map(holidayKey));
+        }
+
+        function buildSegments(row) {
+            const start1 = parseTime(row.in1);
+            const end1 = parseTime(row.out1);
+            const start2 = parseTime(row.in2);
+            const end2 = parseTime(row.out2);
+            const segments = [];
+
+            if (start1 !== null && end1 !== null) segments.push([start1, end1]);
+            if (start2 !== null && end2 !== null) segments.push([start2, end2]);
+            if (segments.length === 0 && start1 !== null && end2 !== null) segments.push([start1, end2]);
+            return segments;
+        }
+
+        function computeRow(row) {
+            const holidaySet = getPeruHolidays(row.date.getFullYear());
+            const holiday = holidaySet.has(holidayKey(row.date));
+            const segments = buildSegments(row);
+            let diurnal = 0;
+            let nocturnal = 0;
+            let total = 0;
+
+            segments.forEach(([start, end]) => {
+                const split = splitDayNight(start, end);
+                diurnal += split.day;
+                nocturnal += split.night;
+                total += split.day + split.night;
+            });
+
+            if (total === 0) {
+                return {
+                    holiday,
+                    diurnal,
+                    nocturnal,
+                    total,
+                    ordinaryDay: 0,
+                    ordinaryNight: 0,
+                    ordinaryTotal: 0,
+                    extra25Day: 0,
+                    extra25Night: 0,
+                    extra25Total: 0,
+                    extra35Day: 0,
+                    extra35Night: 0,
+                    extra35Total: 0,
+                    extra100: 0
+                };
+            }
+
+            if (holiday) {
+                return {
+                    holiday,
+                    diurnal,
+                    nocturnal,
+                    total,
+                    ordinaryDay: 0,
+                    ordinaryNight: 0,
+                    ordinaryTotal: 0,
+                    extra25Day: 0,
+                    extra25Night: 0,
+                    extra25Total: 0,
+                    extra35Day: 0,
+                    extra35Night: 0,
+                    extra35Total: 0,
+                    extra100: total
+                };
+            }
+
+            const ordinaryTotal = Math.min(total, 8 * 60);
+            const overtime = Math.max(0, total - ordinaryTotal);
+            const firstTwoHours = Math.min(overtime, 2 * 60);
+            const rest = Math.max(0, overtime - firstTwoHours);
+            const nightShift = isNightSchedule(row);
+
+            const ordinaryDay = nightShift ? 0 : ordinaryTotal;
+            const ordinaryNight = nightShift ? ordinaryTotal : 0;
+            const extra25Day = nightShift ? 0 : firstTwoHours;
+            const extra25Night = nightShift ? firstTwoHours : 0;
+            const extra35Day = nightShift ? 0 : rest;
+            const extra35Night = nightShift ? rest : 0;
+
+            return {
+                holiday,
+                diurnal,
+                nocturnal,
+                total,
+                ordinaryDay,
+                ordinaryNight,
+                ordinaryTotal,
+                extra25Day,
+                extra25Night,
+                extra25Total: extra25Day + extra25Night,
+                extra35Day,
+                extra35Night,
+                extra35Total: extra35Day + extra35Night,
+                extra100: 0
+            };
+        }
+
+        function createMonthOptions() {
+            refs.mes.innerHTML = monthNames.map((label, index) => `<option value="${index + 1}">${label}</option>`).join("");
+            refs.mes.value = "4";
+        }
+
+        function buildRows() {
+            const year = safeNumber(refs.anio.value) || 2026;
+            const monthIndex = safeNumber(refs.mes.value) - 1;
+            const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+            rows = [];
+
+            for (let day = 1; day <= lastDay; day += 1) {
+                const date = new Date(year, monthIndex, day);
+                rows.push({
+                    day,
+                    date,
+                    labelDate: formatSheetDate(date),
+                    labelWeekday: weekdayNames[date.getDay()],
+                    in1: "",
+                    out1: "",
+                    in2: "",
+                    out2: ""
+                });
+            }
+            render();
+            refs.estado.textContent = `Mes generado: ${monthNames[monthIndex]} ${year}.`;
+        }
+
+        function renderBody() {
+            const holidaySet = getPeruHolidays(safeNumber(refs.anio.value));
+            refs.asistenciaBody.innerHTML = rows.map((row, index) => {
+                const result = computeRow(row);
+                const sundayClass = row.date.getDay() === 0 ? "sunday" : "";
+                const holidayClass = holidaySet.has(holidayKey(row.date)) ? "holiday" : "";
+                const className = holidayClass || sundayClass;
+                return `
+                    <tr data-index="${index}">
+                        <td>${row.labelDate}</td>
+                        <td class="left ${className}">${row.labelWeekday}</td>
+                        ${renderEditableCell(index, 0, "in1", row.in1)}
+                        ${renderEditableCell(index, 1, "out1", row.out1)}
+                        ${renderEditableCell(index, 2, "in2", row.in2)}
+                        ${renderEditableCell(index, 3, "out2", row.out2)}
+                        ${renderComputedCells(result)}
+                    </tr>
+                `;
+            }).join("");
+
+            refs.asistenciaBody.querySelectorAll("input").forEach((input) => {
+                input.addEventListener("change", onEditCell);
+                input.addEventListener("focus", onCellFocus);
+                input.addEventListener("mousedown", onCellMouseDown);
+                input.addEventListener("mouseenter", onCellMouseEnter);
+                input.addEventListener("keydown", onCellKeyDown);
+                input.addEventListener("paste", onCellPaste);
+                input.addEventListener("copy", onCellCopy);
+            });
+            applySelectionStyles();
+        }
+
+        function renderEditableCell(rowIndex, colIndex, field, value) {
+            return `<td class="yellow" data-row="${rowIndex}" data-col="${colIndex}"><input class="excel-input" data-field="${field}" data-index="${rowIndex}" data-row="${rowIndex}" data-col="${colIndex}" value="${value}" /></td>`;
+        }
+
+        function renderComputedCells(result) {
+            return `
+                <td data-out="diurnal">${formatHours(result.diurnal)}</td>
+                <td data-out="nocturnal">${formatHours(result.nocturnal)}</td>
+                <td data-out="total">${formatHours(result.total)}</td>
+                <td data-out="ordinaryDay">${formatHours(result.ordinaryDay)}</td>
+                <td data-out="ordinaryNight">${formatHours(result.ordinaryNight)}</td>
+                <td data-out="ordinaryTotal">${formatHours(result.ordinaryTotal)}</td>
+                <td data-out="extra25Day">${formatHours(result.extra25Day)}</td>
+                <td data-out="extra25Night">${formatHours(result.extra25Night)}</td>
+                <td data-out="extra25Total">${formatHours(result.extra25Total)}</td>
+                <td data-out="extra35Day">${formatHours(result.extra35Day)}</td>
+                <td data-out="extra35Night">${formatHours(result.extra35Night)}</td>
+                <td data-out="extra35Total">${formatHours(result.extra35Total)}</td>
+                <td data-out="extra100">${formatHours(result.extra100)}</td>
+            `;
+        }
+
+        function getSelectionBounds() {
+            return {
+                startRow: Math.min(selectionStart.row, selectionEnd.row),
+                endRow: Math.max(selectionStart.row, selectionEnd.row),
+                startCol: Math.min(selectionStart.col, selectionEnd.col),
+                endCol: Math.max(selectionStart.col, selectionEnd.col)
+            };
+        }
+
+        function setSelection(row, col, keepAnchor = false) {
+            activeCell = { row, col };
+            if (!keepAnchor) selectionStart = { row, col };
+            selectionEnd = { row, col };
+            applySelectionStyles();
+        }
+
+        function extendSelection(row, col) {
+            activeCell = { row, col };
+            selectionEnd = { row, col };
+            applySelectionStyles();
+        }
+
+        function applySelectionStyles() {
+            refs.asistenciaBody.querySelectorAll("td[data-row][data-col]").forEach((cell) => {
+                const row = safeNumber(cell.dataset.row);
+                const col = safeNumber(cell.dataset.col);
+                const bounds = getSelectionBounds();
+                const selected = row >= bounds.startRow && row <= bounds.endRow && col >= bounds.startCol && col <= bounds.endCol;
+                cell.classList.toggle("cell-selected", selected);
+                cell.classList.toggle("cell-active", row === activeCell.row && col === activeCell.col);
+            });
+        }
+
+        function focusCell(row, col) {
+            const input = refs.asistenciaBody.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }
+
+        function setGridValue(rowIndex, colIndex, rawValue) {
+            if (!rows[rowIndex]) return;
+            const field = editableCols[colIndex];
+            if (!field) return;
+            rows[rowIndex][field] = normalizeTime(rawValue);
+        }
+
+        function serializeSelection() {
+            const bounds = getSelectionBounds();
+            const lines = [];
+            for (let row = bounds.startRow; row <= bounds.endRow; row += 1) {
+                const values = [];
+                for (let col = bounds.startCol; col <= bounds.endCol; col += 1) {
+                    values.push(rows[row]?.[editableCols[col]] || "");
+                }
+                lines.push(values.join("\t"));
+            }
+            return lines.join("\n");
+        }
+
+        function refreshGrid(row = activeCell.row, col = activeCell.col) {
+            renderBody();
+            recalcBoleta();
+            focusCell(Math.max(0, Math.min(rows.length - 1, row)), Math.max(0, Math.min(editableCols.length - 1, col)));
+        }
+
+        function clearSelectionValues() {
+            const bounds = getSelectionBounds();
+            for (let row = bounds.startRow; row <= bounds.endRow; row += 1) {
+                for (let col = bounds.startCol; col <= bounds.endCol; col += 1) {
+                    setGridValue(row, col, "");
+                }
+            }
+            refreshGrid(bounds.startRow, bounds.startCol);
+        }
+
+        function moveActiveCell(deltaRow, deltaCol, keepSelection = false) {
+            const nextRow = Math.max(0, Math.min(rows.length - 1, activeCell.row + deltaRow));
+            const nextCol = Math.max(0, Math.min(editableCols.length - 1, activeCell.col + deltaCol));
+            if (keepSelection) extendSelection(nextRow, nextCol);
+            else setSelection(nextRow, nextCol);
+            focusCell(nextRow, nextCol);
+        }
+
+        function updateRenderedRow(rowIndex) {
+            const tr = refs.asistenciaBody.querySelector(`tr[data-index="${rowIndex}"]`);
+            if (!tr) return;
+            const result = computeRow(rows[rowIndex]);
+            tr.querySelector('[data-out="diurnal"]').textContent = formatHours(result.diurnal);
+            tr.querySelector('[data-out="nocturnal"]').textContent = formatHours(result.nocturnal);
+            tr.querySelector('[data-out="total"]').textContent = formatHours(result.total);
+            tr.querySelector('[data-out="ordinaryDay"]').textContent = formatHours(result.ordinaryDay);
+            tr.querySelector('[data-out="ordinaryNight"]').textContent = formatHours(result.ordinaryNight);
+            tr.querySelector('[data-out="ordinaryTotal"]').textContent = formatHours(result.ordinaryTotal);
+            tr.querySelector('[data-out="extra25Day"]').textContent = formatHours(result.extra25Day);
+            tr.querySelector('[data-out="extra25Night"]').textContent = formatHours(result.extra25Night);
+            tr.querySelector('[data-out="extra25Total"]').textContent = formatHours(result.extra25Total);
+            tr.querySelector('[data-out="extra35Day"]').textContent = formatHours(result.extra35Day);
+            tr.querySelector('[data-out="extra35Night"]').textContent = formatHours(result.extra35Night);
+            tr.querySelector('[data-out="extra35Total"]').textContent = formatHours(result.extra35Total);
+            tr.querySelector('[data-out="extra100"]').textContent = formatHours(result.extra100);
+        }
+
+        function renderFooterTotals(summary) {
+            refs.asistenciaTotales.innerHTML = `
+                <td colspan="6"></td>
+                <td>${formatHours(summary.diurnal)}</td>
+                <td>${formatHours(summary.nocturnal)}</td>
+                <td>${formatHours(summary.total)}</td>
+                <td>${formatHours(summary.ordinaryDay)}</td>
+                <td>${formatHours(summary.ordinaryNight)}</td>
+                <td>${formatHours(summary.ordinaryTotal)}</td>
+                <td>${formatHours(summary.extra25Day)}</td>
+                <td>${formatHours(summary.extra25Night)}</td>
+                <td>${formatHours(summary.extra25Total)}</td>
+                <td>${formatHours(summary.extra35Day)}</td>
+                <td>${formatHours(summary.extra35Night)}</td>
+                <td>${formatHours(summary.extra35Total)}</td>
+                <td>${formatHours(summary.extra100)}</td>
+            `;
+        }
+
+        function summarizeRows() {
+            return rows.reduce((acc, row) => {
+                const result = computeRow(row);
+                acc.diurnal += result.diurnal;
+                acc.nocturnal += result.nocturnal;
+                acc.total += result.total;
+                acc.ordinaryDay += result.ordinaryDay;
+                acc.ordinaryNight += result.ordinaryNight;
+                acc.ordinaryTotal += result.ordinaryTotal;
+                acc.extra25Day += result.extra25Day;
+                acc.extra25Night += result.extra25Night;
+                acc.extra25Total += result.extra25Total;
+                acc.extra35Day += result.extra35Day;
+                acc.extra35Night += result.extra35Night;
+                acc.extra35Total += result.extra35Total;
+                acc.extra100 += result.extra100;
+                return acc;
+            }, {
+                diurnal: 0, nocturnal: 0, total: 0,
+                ordinaryDay: 0, ordinaryNight: 0, ordinaryTotal: 0,
+                extra25Day: 0, extra25Night: 0, extra25Total: 0,
+                extra35Day: 0, extra35Night: 0, extra35Total: 0,
+                extra100: 0
+            });
+        }
+
+        function renderList(container, rowsList) {
+            container.innerHTML = rowsList
+                .filter((item) => Math.abs(item.amount) > 0.0001)
+                .map((item) => `<div class="list-row"><span>${item.label}</span><span>${money(item.amount)}</span></div>`)
+                .join("") || `<div class="list-row"><span>Sin datos</span><span>0.00</span></div>`;
+        }
+
+        async function fetchJson(url, options) {
+            const response = await fetch(url, options);
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || data.ok === false) {
+                throw new Error(data.error || `Error HTTP ${response.status}`);
+            }
+            return data;
+        }
+
+        function currentPeriod() {
+            return {
+                month: safeNumber(refs.mes.value),
+                year: safeNumber(refs.anio.value)
+            };
+        }
+
+        function collectRowsPayload() {
+            return rows.map((row) => ({
+                day: row.day,
+                date: row.labelDate,
+                weekday: row.labelWeekday,
+                in1: row.in1,
+                out1: row.out1,
+                in2: row.in2,
+                out2: row.out2,
+                calculated: computeRow(row)
+            }));
+        }
+
+        function collectSettingsPayload() {
+            return {
+                pensionSystem: refs.sistemaPension.value,
+                commissionType: refs.tipoComision.value,
+                sueldoBase: safeNumber(refs.sueldoBase.value),
+                asigFamiliar: safeNumber(refs.asigFamiliar.value),
+                asigTransporte: safeNumber(refs.asigTransporte.value),
+                valeAlimento: safeNumber(refs.valeAlimento.value),
+                adelanto: safeNumber(refs.adelanto.value),
+                dctoVale: safeNumber(refs.dctoVale.value),
+                afpSeguroPct: safeNumber(refs.afpSeguroPct.value),
+                afpComisionPct: safeNumber(refs.afpComisionPct.value),
+                essaludPct: safeNumber(refs.essaludPct.value),
+                rmv: safeNumber(refs.rmv.value),
+                uitAnual: safeNumber(refs.uitAnual.value),
+                vidaLeyPct: safeNumber(refs.vidaLeyPct.value),
+                sctrSaludPct: safeNumber(refs.sctrSaludPct.value),
+                sctrPensionPct: safeNumber(refs.sctrPensionPct.value),
+                quintaModo: refs.quintaModo.value,
+                quintaIngresosPrevios: safeNumber(refs.quintaIngresosPrevios.value),
+                quintaRetPrevias: safeNumber(refs.quintaRetPrevias.value),
+                quintaProyMensual: safeNumber(refs.quintaProyMensual.value),
+                gratJulioProy: safeNumber(refs.gratJulioProy.value),
+                gratDiciembreProy: safeNumber(refs.gratDiciembreProy.value)
+            };
+        }
+
+        function buildSavePayload() {
+            return {
+                worker: {
+                    company: refs.empresa.value,
+                    ruc: refs.ruc.value,
+                    code: refs.codigo.value,
+                    dni: refs.dni.value,
+                    name: refs.nombre.value,
+                    role: refs.cargo.value,
+                    entryDate: refs.fechaIngreso.value,
+                    pensionLabel: refs.sistemaPension.value === "ONP" ? "ONP" : refs.afp.value,
+                    cuspp: refs.cuspp.value
+                },
+                period: currentPeriod(),
+                settings: collectSettingsPayload(),
+                attendance: collectRowsPayload(),
+                payroll: latestSnapshot
+            };
+        }
+
+        async function savePayrollRecord() {
+            const payload = buildSavePayload();
+            const result = await fetchJson("/api/payroll-record", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            refs.estado.textContent = `Guardado correctamente. Registro #${result.record_id}.`;
+        }
+
+        function renderSavedRecords() {
+            refs.savedPanel.style.display = "block";
+            refs.savedRecordsList.innerHTML = "";
+            refs.savedRecordsEmpty.style.display = savedRecords.length ? "none" : "block";
+            if (!savedRecords.length) return;
+            refs.savedRecordsList.innerHTML = savedRecords.map((record) => `
+                <div class="list-row" style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #d7dfef;">
+                    <div>
+                        <div><strong>${record.employee_name || "Sin nombre"}</strong></div>
+                        <div class="hint">Codigo: ${record.employee_code || "-"} | DNI: ${record.employee_dni || "-"} | Periodo: ${pad2(record.month || 0)}/${record.year || "-"}</div>
+                        <div class="hint">Actualizado: ${record.updated_at || "-"}${record.net_total != null ? ` | Neto: S/ ${money(record.net_total)}` : ""}</div>
+                    </div>
+                    <button class="secondary" data-load-record="${record.id}">Cargar</button>
+                </div>
+            `).join("");
+            refs.savedRecordsList.querySelectorAll("[data-load-record]").forEach((button) => {
+                button.addEventListener("click", async () => {
+                    try {
+                        await loadSavedRecordById(safeNumber(button.dataset.loadRecord));
+                    } catch (error) {
+                        refs.estado.textContent = `Error al cargar registro: ${error.message}`;
+                    }
+                });
+            });
+        }
+
+        async function loadSavedRecords() {
+            const result = await fetchJson("/api/payroll-records");
+            savedRecords = result.records || [];
+            refs.savedPath.textContent = result.storage_path || "";
+            renderSavedRecords();
+            refs.estado.textContent = savedRecords.length
+                ? `${savedRecords.length} registro(s) encontrados.`
+                : "No hay registros guardados.";
+        }
+
+        function applySavedRecord(record) {
+            const payload = record.payload || {};
+            const worker = payload.worker || {};
+            const period = payload.period || {};
+            const settings = payload.settings || {};
+            const attendance = Array.isArray(payload.attendance) ? payload.attendance : [];
+            const settingsRefMap = {
+                pensionSystem: "sistemaPension",
+                commissionType: "tipoComision"
+            };
+
+            refs.empresa.value = worker.company || refs.empresa.value;
+            refs.ruc.value = worker.ruc || refs.ruc.value;
+            refs.codigo.value = worker.code || "";
+            refs.dni.value = worker.dni || "";
+            refs.nombre.value = worker.name || "";
+            refs.cargo.value = worker.role || "";
+            refs.fechaIngreso.value = worker.entryDate || refs.fechaIngreso.value;
+            refs.cuspp.value = worker.cuspp || refs.cuspp.value;
+            if (worker.pensionLabel && worker.pensionLabel !== "ONP") refs.afp.value = worker.pensionLabel;
+            if (period.month) refs.mes.value = String(period.month);
+            if (period.year) refs.anio.value = String(period.year);
+
+            Object.entries(settings).forEach(([key, value]) => {
+                const refKey = settingsRefMap[key] || key;
+                if (refs[refKey] && value !== undefined && value !== null) {
+                    refs[refKey].value = String(value);
+                }
+            });
+
+            buildRows();
+            const attendanceByDay = new Map(attendance.map((item) => [safeNumber(item.day), item]));
+            rows = rows.map((row) => {
+                const saved = attendanceByDay.get(row.day);
+                if (!saved) return row;
+                return {
+                    ...row,
+                    in1: saved.in1 || "",
+                    out1: saved.out1 || "",
+                    in2: saved.in2 || "",
+                    out2: saved.out2 || ""
+                };
+            });
+            render();
+            refs.estado.textContent = `Registro #${record.id} cargado correctamente.`;
+        }
+
+        async function loadSavedRecordById(recordId) {
+            const result = await fetchJson(`/api/payroll-record/${recordId}`);
+            applySavedRecord(result.record || {});
+        }
+
+        function syncHeader() {
+            const monthIndex = safeNumber(refs.mes.value) - 1;
+            refs.bEmpresaTop.textContent = refs.empresa.value;
+            refs.bEmpresa.textContent = refs.empresa.value;
+            refs.bMes.textContent = monthNames[monthIndex] || "";
+            refs.bAnio.textContent = refs.anio.value;
+            refs.bRuc.textContent = refs.ruc.value;
+            refs.bPeriodo.textContent = pad2(monthIndex + 1);
+            refs.bIngreso.textContent = formatInputDate(refs.fechaIngreso.value);
+            refs.bCodigo.textContent = refs.codigo.value;
+            refs.bNombre.textContent = refs.nombre.value;
+            refs.bCargo.textContent = refs.cargo.value;
+            refs.bDni.textContent = refs.dni.value;
+            refs.bCuspp.textContent = refs.cuspp.value;
+            refs.bSueldo.textContent = money(refs.sueldoBase.value);
+            refs.bAfp.textContent = refs.sistemaPension.value === "ONP" ? "ONP" : refs.afp.value;
+        }
+
+        function calcAnnualFifthCategoryFromAnnualIncome(annualProjected, uit) {
+            let taxable = Math.max(0, annualProjected - (uit * 7));
+            const brackets = [
+                { limit: uit * 5, rate: 0.08 },
+                { limit: uit * 15, rate: 0.14 },
+                { limit: uit * 15, rate: 0.17 },
+                { limit: uit * 10, rate: 0.20 },
+                { limit: Number.POSITIVE_INFINITY, rate: 0.30 }
+            ];
+            let tax = 0;
+            for (const bracket of brackets) {
+                if (taxable <= 0) break;
+                const tranche = Math.min(taxable, bracket.limit);
+                tax += tranche * bracket.rate;
+                taxable -= tranche;
+            }
+            return round2(tax);
+        }
+
+        function sunatDivisionFactor(monthNumber) {
+            if (monthNumber <= 3) return 12;
+            if (monthNumber === 4) return 9;
+            if (monthNumber <= 7) return 8;
+            if (monthNumber === 8) return 5;
+            if (monthNumber <= 11) return 4;
+            return 1;
+        }
+
+        function calcSunatAccumulatedFifthCategory(monthNumber, currentTaxable) {
+            const previousIncome = safeNumber(refs.quintaIngresosPrevios.value);
+            const previousWithheld = safeNumber(refs.quintaRetPrevias.value);
+            const futureMonthlyProjection = safeNumber(refs.quintaProyMensual.value);
+            const gratJuly = safeNumber(refs.gratJulioProy.value);
+            const gratDecember = safeNumber(refs.gratDiciembreProy.value);
+            const uit = safeNumber(refs.uitAnual.value);
+            const futureMonths = Math.max(0, 12 - monthNumber);
+            const projectedJuly = monthNumber <= 6 ? gratJuly : 0;
+            const projectedDecember = monthNumber <= 11 ? gratDecember : 0;
+            const annualProjected = round2(
+                previousIncome +
+                currentTaxable +
+                (futureMonthlyProjection * futureMonths) +
+                projectedJuly +
+                projectedDecember
+            );
+            const annualTax = calcAnnualFifthCategoryFromAnnualIncome(annualProjected, uit);
+            const factor = sunatDivisionFactor(monthNumber);
+            const monthlyWithholding = round2(Math.max(0, annualTax - previousWithheld) / factor);
+            return {
+                annualProjected,
+                annualTax,
+                monthlyWithholding
+            };
+        }
+
+        function recalcBoleta() {
+            syncHeader();
+            const summary = summarizeRows();
+            renderFooterTotals(summary);
+
+            const salary = safeNumber(refs.sueldoBase.value);
+            const family = safeNumber(refs.asigFamiliar.value);
+            const transport = safeNumber(refs.asigTransporte.value);
+            const food = safeNumber(refs.valeAlimento.value);
+            const pensionSystem = refs.sistemaPension.value;
+            const commissionType = refs.tipoComision.value;
+            const monthNumber = safeNumber(refs.mes.value);
+            const base = salary + family;
+            const ratio = baseReference > 0 ? base / baseReference : 1;
+
+            const he25 = summary.extra25Day / 60;
+            const he35 = summary.extra35Day / 60;
+            const he25Noc = summary.extra25Night / 60;
+            const he35Noc = summary.extra35Night / 60;
+            const feriado = summary.extra100 / 60;
+
+            const he25Amount = round2(he25 * calibratedRates.he25Day * ratio);
+            const he35Amount = round2(he35 * calibratedRates.he35Day * ratio);
+            const he25NocAmount = round2(he25Noc * calibratedRates.he25Night * ratio);
+            const he35NocAmount = round2(he35Noc * calibratedRates.he35Night * ratio);
+            const feriadoAmount = round2(feriado * calibratedRates.holiday * ratio);
+
+            const remuneraciones = [
+                { label: "Sueldo Basico", amount: salary },
+                { label: "Sobretiempo 25% Diurno", amount: he25Amount },
+                { label: "Sobretiempo 35% Diurno", amount: he35Amount },
+                { label: "Feriado o Descanso Obligatorio", amount: feriadoAmount },
+                { label: "Sobretiempo 35% Nocturno", amount: he35NocAmount },
+                { label: "Sobretiempo 25% Nocturno", amount: he25NocAmount },
+                { label: "Asignacion Familiar", amount: family },
+                { label: "Asignacion por Transporte", amount: transport },
+                { label: "Vale Alimento", amount: food }
+            ];
+
+            const computable = round2(salary + family + he25Amount + he35Amount + he25NocAmount + he35NocAmount + feriadoAmount);
+            const afpSeguroPct = safeNumber(refs.afpSeguroPct.value) / 100;
+            const afpComisionPct = commissionType === "flujo" ? safeNumber(refs.afpComisionPct.value) / 100 : 0;
+            const descuentoAfp = pensionSystem === "AFP" ? round2(computable * 0.10) : round2(computable * 0.13);
+            const descuentoSeguro = pensionSystem === "AFP" ? round2(computable * afpSeguroPct) : 0;
+            const descuentoComision = pensionSystem === "AFP" ? round2(computable * afpComisionPct) : 0;
+            const descuentoRenta = refs.quintaModo.value === "sunat"
+                ? calcSunatAccumulatedFifthCategory(monthNumber, computable).monthlyWithholding
+                : round2(calcAnnualFifthCategoryFromAnnualIncome(computable * 14, safeNumber(refs.uitAnual.value)) / 12);
+            const adelanto = safeNumber(refs.adelanto.value);
+            const dctoVale = safeNumber(refs.dctoVale.value);
+
+            const descuentos = [
+                { label: pensionSystem === "AFP" ? "Aporte Obligatorio AFP" : "Aporte ONP", amount: descuentoAfp },
+                { label: "Prima Seguro / Sobrevivencia", amount: descuentoSeguro },
+                { label: "Comision AFP", amount: descuentoComision },
+                { label: "Retencion Impuesto a la Renta", amount: descuentoRenta },
+                { label: "Adelanto de Quincena", amount: adelanto },
+                { label: "Dcto. Vale Alimento Pagado", amount: dctoVale }
+            ];
+
+            const essaludBase = Math.max(computable, safeNumber(refs.rmv.value));
+            const essalud = round2(essaludBase * (safeNumber(refs.essaludPct.value) / 100));
+            const vidaLey = round2(computable * (safeNumber(refs.vidaLeyPct.value) / 100));
+            const sctrSalud = round2(computable * (safeNumber(refs.sctrSaludPct.value) / 100));
+            const sctrPension = round2(computable * (safeNumber(refs.sctrPensionPct.value) / 100));
+
+            const aportes = [
+                { label: "Aporte a ESSALUD", amount: essalud },
+                { label: "Seguro de Vida Ley", amount: vidaLey },
+                { label: "SCTR Salud", amount: sctrSalud },
+                { label: "SCTR Pension", amount: sctrPension }
+            ];
+
+            const totalRem = round2(remuneraciones.reduce((sum, item) => sum + item.amount, 0));
+            const totalDesc = round2(descuentos.reduce((sum, item) => sum + item.amount, 0));
+            const totalAportes = round2(aportes.reduce((sum, item) => sum + item.amount, 0));
+            const totalNeto = round2(totalRem - totalDesc);
+            const monthHours = rows.length * 8;
+
+            renderList(refs.listaRemuneraciones, remuneraciones);
+            renderList(refs.listaDescuentos, descuentos);
+            renderList(refs.listaAportes, aportes);
+
+            refs.totalRem.textContent = money(totalRem);
+            refs.totalDesc.textContent = money(totalDesc);
+            refs.totalAportes.textContent = money(totalAportes);
+            refs.totalNeto.textContent = money(totalNeto);
+            refs.statDiasTrab.textContent = `${rows.length.toFixed(2)} / ${monthHours.toFixed(2)} Hrs.`;
+            refs.statHe25.textContent = he25.toFixed(2);
+            refs.statHe35.textContent = he35.toFixed(2);
+            refs.statHe25Noc.textContent = he25Noc.toFixed(2);
+            refs.statHe35Noc.textContent = he35Noc.toFixed(2);
+            refs.statFeriado.textContent = feriado.toFixed(2);
+
+            refs.sumOrdinarias.textContent = (summary.ordinaryTotal / 60).toFixed(2);
+            refs.sumExtras.textContent = ((summary.extra25Total + summary.extra35Total) / 60).toFixed(2);
+            refs.sumFeriado.textContent = feriado.toFixed(2);
+            refs.sumNeto.textContent = `S/ ${money(totalNeto)}`;
+            latestSnapshot = {
+                period: currentPeriod(),
+                summary,
+                remuneraciones,
+                descuentos,
+                aportes,
+                totals: {
+                    totalRem,
+                    totalDesc,
+                    totalAportes,
+                    totalNeto
+                },
+                stats: {
+                    workedHours: monthHours,
+                    he25,
+                    he35,
+                    he25Noc,
+                    he35Noc,
+                    feriado
+                }
+            };
+        }
+
+        function render() {
+            renderBody();
+            recalcBoleta();
+        }
+
+        function onEditCell(event) {
+            const index = safeNumber(event.target.dataset.index);
+            const field = event.target.dataset.field;
+            if (!rows[index] || !field) return;
+            const normalized = normalizeTime(event.target.value);
+            rows[index][field] = normalized;
+            event.target.value = normalized;
+            recalcBoleta();
+            updateRenderedRow(index);
+            applySelectionStyles();
+        }
+
+        function onCellFocus(event) {
+            const row = safeNumber(event.target.dataset.row);
+            const col = safeNumber(event.target.dataset.col);
+            if (event.shiftKey) extendSelection(row, col);
+            else setSelection(row, col);
+        }
+
+        function onCellMouseDown(event) {
+            const row = safeNumber(event.target.dataset.row);
+            const col = safeNumber(event.target.dataset.col);
+            isSelecting = true;
+            selectionStart = { row, col };
+            selectionEnd = { row, col };
+            activeCell = { row, col };
+            applySelectionStyles();
+        }
+
+        function onCellMouseEnter(event) {
+            if (!isSelecting) return;
+            const row = safeNumber(event.target.dataset.row);
+            const col = safeNumber(event.target.dataset.col);
+            extendSelection(row, col);
+        }
+
+        function onCellKeyDown(event) {
+            const hasModifier = event.ctrlKey || event.metaKey;
+            if ((event.key === "c" || event.key === "C") && hasModifier) {
+                event.preventDefault();
+                const text = serializeSelection();
+                if (event.clipboardData) event.clipboardData.setData("text/plain", text);
+                else if (navigator.clipboard) navigator.clipboard.writeText(text);
+                return;
+            }
+            if (event.key === "Delete") {
+                event.preventDefault();
+                clearSelectionValues();
+                return;
+            }
+            if (event.key === "Enter") {
+                event.preventDefault();
+                moveActiveCell(event.shiftKey ? -1 : 1, 0, false);
+                return;
+            }
+            if (event.key === "Tab") {
+                event.preventDefault();
+                moveActiveCell(0, event.shiftKey ? -1 : 1, false);
+                return;
+            }
+            if (event.key === "ArrowUp") {
+                event.preventDefault();
+                moveActiveCell(-1, 0, event.shiftKey);
+                return;
+            }
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                moveActiveCell(1, 0, event.shiftKey);
+                return;
+            }
+            if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                moveActiveCell(0, -1, event.shiftKey);
+                return;
+            }
+            if (event.key === "ArrowRight") {
+                event.preventDefault();
+                moveActiveCell(0, 1, event.shiftKey);
+            }
+        }
+
+        function onCellPaste(event) {
+            event.preventDefault();
+            const text = event.clipboardData?.getData("text/plain") || "";
+            if (!text) return;
+            const startRow = safeNumber(event.target.dataset.row);
+            const startCol = safeNumber(event.target.dataset.col);
+            const pastedRows = text
+                .replace(/\r/g, "")
+                .split("\n")
+                .filter((line, index, array) => line !== "" || index < array.length - 1)
+                .map((line) => line.split("\t"));
+
+            pastedRows.forEach((cols, rowOffset) => {
+                cols.forEach((value, colOffset) => {
+                    const targetRow = startRow + rowOffset;
+                    const targetCol = startCol + colOffset;
+                    if (targetRow < rows.length && targetCol < editableCols.length) {
+                        setGridValue(targetRow, targetCol, value);
+                    }
+                });
+            });
+
+            selectionStart = { row: startRow, col: startCol };
+            selectionEnd = {
+                row: Math.min(rows.length - 1, startRow + pastedRows.length - 1),
+                col: Math.min(editableCols.length - 1, startCol + Math.max(0, (pastedRows[0]?.length || 1) - 1))
+            };
+            activeCell = { ...selectionEnd };
+            refreshGrid(activeCell.row, activeCell.col);
+        }
+
+        function onCellCopy(event) {
+            event.preventDefault();
+            event.clipboardData.setData("text/plain", serializeSelection());
+        }
+
+        function clearRows() {
+            rows = rows.map((row) => ({
+                ...row,
+                in1: "",
+                out1: "",
+                in2: "",
+                out2: ""
+            }));
+            render();
+            refs.estado.textContent = "Horas limpiadas.";
+        }
+
+        function loadExample() {
+            refs.mes.value = "4";
+            refs.anio.value = "2026";
+            buildRows();
+            const example = {
+                1: ["19:00", "", "", "7:00"],
+                2: ["19:00", "", "", "7:00"],
+                3: ["19:00", "", "", "7:00"],
+                4: ["19:00", "", "", "7:00"],
+                6: ["7:00", "13:00", "14:00", "19:00"],
+                7: ["7:00", "13:00", "14:00", "19:00"],
+                8: ["7:00", "13:00", "14:00", "19:00"],
+                9: ["7:00", "13:00", "14:00", "19:00"],
+                10: ["7:00", "13:00", "14:00", "17:30"],
+                11: ["7:00", "13:00", "14:00", "19:00"],
+                13: ["19:00", "", "", "7:00"],
+                14: ["19:00", "", "", "7:00"],
+                15: ["19:00", "", "", "7:00"],
+                16: ["19:00", "", "", "7:00"],
+                17: ["19:00", "", "", "7:00"],
+                18: ["19:00", "", "", "8:00"],
+                20: ["7:00", "13:00", "14:00", "19:00"],
+                21: ["7:00", "13:00", "14:00", "19:00"],
+                22: ["7:00", "13:00", "14:00", "19:00"],
+                23: ["7:00", "13:00", "14:00", "19:00"],
+                24: ["7:00", "13:00", "14:00", "17:00"],
+                25: ["7:00", "13:00", "14:00", "19:00"],
+                27: ["19:00", "", "", "7:00"],
+                28: ["19:00", "", "", "7:00"],
+                29: ["19:00", "", "", "7:00"],
+                30: ["19:00", "", "", "7:00"]
+            };
+
+            rows = rows.map((row) => {
+                const item = example[row.day];
+                if (!item) return row;
+                return {
+                    ...row,
+                    in1: item[0],
+                    out1: item[1],
+                    in2: item[2],
+                    out2: item[3]
+                };
+            });
+            render();
+            refs.estado.textContent = "Ejemplo cargado con el modelo mostrado.";
+        }
+
+        function bindEvents() {
+            refs.btnGenerar.addEventListener("click", buildRows);
+            refs.btnGuardar.addEventListener("click", async () => {
+                try {
+                    await savePayrollRecord();
+                } catch (error) {
+                    refs.estado.textContent = `Error al guardar: ${error.message}`;
+                }
+            });
+            refs.btnVerGuardados.addEventListener("click", async () => {
+                try {
+                    await loadSavedRecords();
+                } catch (error) {
+                    refs.estado.textContent = `Error al listar guardados: ${error.message}`;
+                }
+            });
+            refs.btnEjemplo.addEventListener("click", loadExample);
+            refs.btnLimpiar.addEventListener("click", clearRows);
+            document.addEventListener("mouseup", () => {
+                isSelecting = false;
+            });
+            [
+                refs.empresa, refs.ruc, refs.mes, refs.anio, refs.codigo, refs.dni, refs.nombre, refs.cargo,
+                refs.fechaIngreso, refs.afp, refs.cuspp, refs.sistemaPension, refs.tipoComision, refs.sueldoBase,
+                refs.asigFamiliar, refs.asigTransporte, refs.valeAlimento, refs.adelanto, refs.dctoVale,
+                refs.afpSeguroPct, refs.afpComisionPct, refs.essaludPct, refs.rmv, refs.uitAnual,
+                refs.vidaLeyPct, refs.sctrSaludPct, refs.sctrPensionPct, refs.quintaModo,
+                refs.quintaIngresosPrevios, refs.quintaRetPrevias, refs.quintaProyMensual,
+                refs.gratJulioProy, refs.gratDiciembreProy
+            ].forEach((element) => {
+                element.addEventListener("input", () => {
+                    if (element === refs.mes || element === refs.anio) return;
+                    recalcBoleta();
+                });
+                element.addEventListener("change", () => {
+                    if (element === refs.mes || element === refs.anio) {
+                        buildRows();
+                    } else {
+                        recalcBoleta();
+                    }
+                });
+            });
+        }
+
+        function init() {
+            bindRefs();
+            createMonthOptions();
+            bindEvents();
+            loadExample();
+        }
+
+        init();
+    </script>
+</body>
+</html>
