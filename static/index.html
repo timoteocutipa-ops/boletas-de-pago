@@ -349,84 +349,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        .print-only {
-            display: none;
-        }
-
-        .print-header {
-            margin: 0 0 10px;
-        }
-
-        .print-title {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .print-sub {
-            font-size: 12px;
-            color: var(--muted);
-            margin-top: 2px;
-        }
-
-        body.print-asistencia #secBoleta,
-        body.print-asistencia .top-grid,
-        body.print-asistencia .hero {
-            display: none !important;
-        }
-
-        body.print-boleta #secAsistencia,
-        body.print-boleta .top-grid,
-        body.print-boleta .hero {
-            display: none !important;
-        }
-
-        @media print {
-            @page {
-                margin: 10mm;
-            }
-
-            body {
-                background: #fff;
-            }
-
-            .page {
-                max-width: none;
-                padding: 0;
-            }
-
-            .panel {
-                border: none;
-                box-shadow: none;
-                margin: 0 0 10px;
-                padding: 0;
-            }
-
-            button,
-            .actions,
-            .saved-panel,
-            .hint#estado {
-                display: none !important;
-            }
-
-            .print-only {
-                display: block !important;
-            }
-
-            .table-wrap,
-            .boleta-wrap {
-                overflow: visible;
-                border: none;
-            }
-
-            .sheet {
-                min-width: 0;
-            }
-
-            .boleta {
-                min-width: 0;
-            }
-        }
     </style>
 </head>
 <body>
@@ -608,9 +530,6 @@
                     <button class="primary" id="btnGenerar">Generar mes</button>
                     <button class="primary" id="btnGuardar">Guardar</button>
                     <button class="secondary" id="btnVerGuardados">Ver guardados</button>
-                    <button class="secondary" id="btnPrintAsistencia">Imprimir asistencia / PDF</button>
-                    <button class="secondary" id="btnExportAsistenciaCsv">Exportar asistencia CSV</button>
-                    <button class="secondary" id="btnPrintBoleta">Imprimir boleta / PDF</button>
                     <button class="secondary" id="btnEjemplo">Cargar ejemplo</button>
                     <button class="secondary" id="btnLimpiar">Limpiar horas</button>
                 </div>
@@ -644,16 +563,12 @@
             </article>
         </section>
 
-        <section class="panel" id="secAsistencia">
+        <section class="panel">
             <h2>Hoja de Asistencia</h2>
             <p class="hint">
                 Turno noche o nocturno: desde <strong>10:00 PM</strong> hasta <strong>6:00 AM</strong>.
                 Si una fecha es feriado peruano y tiene horas registradas, esas horas pasan a <strong>100%</strong>.
             </p>
-            <div class="print-header print-only">
-                <div class="print-title" id="printAsistenciaTitle"></div>
-                <div class="print-sub" id="printAsistenciaSub"></div>
-            </div>
             <div class="table-wrap">
                 <table class="sheet">
                     <thead>
@@ -691,12 +606,8 @@
             </div>
         </section>
 
-        <section class="panel" id="secBoleta">
+        <section class="panel">
             <h2>Boleta de Pago</h2>
-            <div class="print-header print-only">
-                <div class="print-title" id="printBoletaTitle"></div>
-                <div class="print-sub" id="printBoletaSub"></div>
-            </div>
             <div class="boleta-wrap">
                 <table class="boleta">
                     <tbody>
@@ -816,7 +727,7 @@
                             <td id="statHe35Noc" class="center">0.00</td>
                             <td id="statFeriado" class="center">0.00</td>
                             <td colspan="3">
-                                <div class="signature">Rosa Del Rosario Tica</div>
+                                <div class="signature" id="bFirma"></div>
                             </td>
                         </tr>
                         <tr>
@@ -849,7 +760,6 @@
         let selectionStart = { row: 0, col: 0 };
         let selectionEnd = { row: 0, col: 0 };
         let isSelecting = false;
-        let isPrinting = false;
 
         function bindRefs() {
             [
@@ -858,13 +768,13 @@
                 "adelanto", "dctoVale", "afpSeguroPct", "afpComisionPct", "essaludPct", "rmv", "uitAnual",
                 "vidaLeyPct", "sctrSaludPct", "sctrPensionPct", "quintaModo", "quintaIngresosPrevios",
                 "quintaRetPrevias", "quintaProyMensual", "gratJulioProy", "gratDiciembreProy",
-                "btnGenerar", "btnGuardar", "btnVerGuardados", "btnPrintAsistencia", "btnExportAsistenciaCsv", "btnPrintBoleta", "btnEjemplo", "btnLimpiar", "estado", "sumOrdinarias", "sumExtras", "sumFeriado", "sumNeto",
+                "btnGenerar", "btnGuardar", "btnVerGuardados", "btnEjemplo", "btnLimpiar", "estado", "sumOrdinarias", "sumExtras", "sumFeriado", "sumNeto",
                 "savedPanel", "savedPath", "savedRecordsEmpty", "savedRecordsList",
-                "printAsistenciaTitle", "printAsistenciaSub", "printBoletaTitle", "printBoletaSub",
                 "asistenciaBody", "asistenciaTotales", "bEmpresaTop", "bEmpresa", "bMes", "bAnio", "bRuc", "bPeriodo",
                 "bIngreso", "bCodigo", "bNombre", "bCargo", "bDni", "bCuspp", "bSueldo", "bAfp", "listaRemuneraciones",
                 "listaDescuentos", "listaAportes", "totalRem", "totalDesc", "totalAportes", "totalNeto", "statDiasTrab",
-                "statHe25", "statHe35", "statHe25Noc", "statHe35Noc", "statFeriado"
+                "statHe25", "statHe35", "statHe25Noc", "statHe35Noc", "statFeriado",
+                "bFirma"
             ].forEach((id) => {
                 refs[id] = document.getElementById(id);
             });
@@ -1345,114 +1255,9 @@
             };
         }
 
-        function updatePrintHeaders() {
-            const period = currentPeriod();
-            const monthIndex = Math.max(0, Math.min(11, safeNumber(period.month) - 1));
-            const titleBase = `${monthNames[monthIndex]} ${period.year || ""}`.trim();
-            const workerLine = `${refs.nombre.value || ""} | DNI ${refs.dni.value || ""} | ${refs.empresa.value || ""}`.trim();
-
-            if (refs.printAsistenciaTitle) refs.printAsistenciaTitle.textContent = `Hoja de Asistencia - ${titleBase}`;
-            if (refs.printAsistenciaSub) refs.printAsistenciaSub.textContent = workerLine;
-            if (refs.printBoletaTitle) refs.printBoletaTitle.textContent = `Boleta de Pago - ${titleBase}`;
-            if (refs.printBoletaSub) refs.printBoletaSub.textContent = workerLine;
-        }
-
-        function setPrintMode(mode) {
-            document.body.classList.remove("print-asistencia", "print-boleta");
-            if (mode) document.body.classList.add(mode);
-        }
-
-        function printWithMode(mode) {
-            if (isPrinting) return;
-            isPrinting = true;
-            updatePrintHeaders();
-            setPrintMode(mode);
-            window.print();
-        }
-
-        window.addEventListener("afterprint", () => {
-            setPrintMode(null);
-            isPrinting = false;
-        });
-
-        function csvEscape(value) {
-            const text = String(value ?? "");
-            if (text.includes('"') || text.includes(",") || text.includes("\n") || text.includes("\r")) {
-                return `"${text.replace(/"/g, '""')}"`;
-            }
-            return text;
-        }
-
-        function downloadBlob(blob, filename) {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            URL.revokeObjectURL(url);
-        }
-
-        function exportAttendanceCsv() {
-            updatePrintHeaders();
-            const period = currentPeriod();
-            const monthIndex = Math.max(0, Math.min(11, safeNumber(period.month) - 1));
-            const safeYear = safeNumber(period.year) || new Date().getFullYear();
-            const filename = `asistencia_${monthShort[monthIndex]}_${safeYear}.csv`;
-            const header = [
-                "fecha",
-                "dia",
-                "in1",
-                "out1",
-                "in2",
-                "out2",
-                "hrs_diurnas",
-                "hrs_nocturnas",
-                "hrs_total",
-                "ordinarias_dia",
-                "ordinarias_noche",
-                "ordinarias_total",
-                "he25_dia",
-                "he25_noche",
-                "he25_total",
-                "he35_dia",
-                "he35_noche",
-                "he35_total",
-                "feriado_100"
-            ];
-
-            const lines = [header.join(",")];
-            rows.forEach((row) => {
-                const result = computeRow(row);
-                lines.push(
-                    [
-                        row.labelDate,
-                        row.labelWeekday,
-                        row.in1,
-                        row.out1,
-                        row.in2,
-                        row.out2,
-                        formatHours(result.diurnal),
-                        formatHours(result.nocturnal),
-                        formatHours(result.total),
-                        formatHours(result.ordinaryDay),
-                        formatHours(result.ordinaryNight),
-                        formatHours(result.ordinaryTotal),
-                        formatHours(result.extra25Day),
-                        formatHours(result.extra25Night),
-                        formatHours(result.extra25Total),
-                        formatHours(result.extra35Day),
-                        formatHours(result.extra35Night),
-                        formatHours(result.extra35Total),
-                        formatHours(result.extra100)
-                    ].map(csvEscape).join(",")
-                );
-            });
-
-            const blob = new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
-            downloadBlob(blob, filename);
-            refs.estado.textContent = `Asistencia exportada: ${filename}`;
+        function syncFirma() {
+            if (!refs.bFirma) return;
+            refs.bFirma.textContent = String(refs.nombre.value || "").trim();
         }
 
         function collectRowsPayload() {
@@ -1810,6 +1615,7 @@
         function render() {
             renderBody();
             recalcBoleta();
+            syncFirma();
         }
 
         function onEditCell(event) {
@@ -2004,15 +1810,6 @@
                 } catch (error) {
                     refs.estado.textContent = `Error al listar guardados: ${error.message}`;
                 }
-            });
-            refs.btnPrintAsistencia.addEventListener("click", () => {
-                printWithMode("print-asistencia");
-            });
-            refs.btnExportAsistenciaCsv.addEventListener("click", () => {
-                exportAttendanceCsv();
-            });
-            refs.btnPrintBoleta.addEventListener("click", () => {
-                printWithMode("print-boleta");
             });
             refs.btnEjemplo.addEventListener("click", loadExample);
             refs.btnLimpiar.addEventListener("click", clearRows);
